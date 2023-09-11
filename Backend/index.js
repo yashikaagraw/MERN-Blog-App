@@ -1,6 +1,11 @@
 const express = require("express")
+const bcrypt = require("bcrypt")
+const jwt = require("jsonwebtoken")
+
+
 const {connection} = require("./config/db")
 const{UserModel} = require("./model/User.model")
+
 
 const app= express()
 const port= 8000
@@ -12,20 +17,57 @@ app.get("/", (req,res)=> {
 })
 
 app.post("/signup", async (req,res)=> {
-const payload =  req.body
-const new_user= new UserModel(payload)
-await new_user.save()
-res.send({msg : "sign up successfully", new_user})
-console.log(payload)
+
+const{name, email, password}=req.body
+bcrypt.hash(password, 3, async function(err, hash) {
+  const new_user= new UserModel({
+    name,
+    email,
+    password : hash,
+  })
+  
+  try {
+    await new_user.save()
+    res.send({msg: "sign up successfully", new_user})
+  } catch (error) {
+    res.send("something went wrong")
+    console.log(error)
+  }
+
+    // Store hash in your password DB.
+});
+
+
+
+// const payload =  req.body
+// const new_user= new UserModel(payload)
+// await new_user.save()
+// res.send({msg : "sign up successfully", new_user})
+// console.log(payload)
 })
 
 app.post("/login", async (req,res)=> {
     const{email, password} = req.body
-    const user = await UserModel.findOne({email, password})
+    const user = await UserModel.findOne({email})
+    
     if(!user) {
-        res.send({msg: "invalid credentials"})
+        res.send({msg: "sign up first!"})
     }else{
-        res.send({msg : "logged in"})
+
+      const hashed_password= user.password
+      
+
+        bcrypt.compare(password, hashed_password, function(err, result) {
+
+            if(result){
+                var token = jwt.sign({ user_id: user._id }, 'yash');
+
+                res.send({msg: "logged in", token : token})
+            }else{
+                res.send("invalid password")
+            }
+            // result == true
+        });
     }
 })
 
