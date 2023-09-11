@@ -1,6 +1,8 @@
-import React from 'react'
+import { useContext } from 'react'
 import { useState } from 'react'
-
+import { Navigate } from 'react-router-dom'
+//import { myAuthContext } from '../Context/AuthContextProvider'
+import { MyAuthContext } from './Context/AuthContextProvider'
 const initialState = {email : "", 
 password : ""
 }
@@ -8,6 +10,7 @@ const Login = () => {
     const[state, setState] = useState(initialState)
     console.log(state);
 
+    const { login, logout, isAuth } = useContext(MyAuthContext)
     const handleinput = (e) => {
         setState({...state,[e.target.name]:e.target.value})
     }
@@ -20,12 +23,17 @@ const Login = () => {
             },
             body: JSON.stringify(state)
         })
-        .then(res=>res.json())
-        .then(res => console.log(res));
-         //.then(res=>login(res.token));
+        
+        //.then(res => console.log(res));
+        .then((res) => res.json())
+        .then((res) => login(res.token));
          //alert("logged in")
      }
     
+     if(isAuth){
+        return <Navigate to="/dashboard"/>
+     }
+
   return (
     <div>
       <h1>Login</h1>
