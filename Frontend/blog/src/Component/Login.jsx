@@ -1,47 +1,99 @@
-import { useContext } from 'react'
-import { useState } from 'react'
-import { Navigate } from 'react-router-dom'
-//import { myAuthContext } from '../Context/AuthContextProvider'
-import { MyAuthContext } from './Context/AuthContextProvider'
-const initialState = {email : "", 
-password : ""
-}
+import { useContext } from 'react';
+import { useState } from 'react';
+import { Navigate } from 'react-router-dom';
+import { MyAuthContext } from './Context/AuthContextProvider';
+
+const initialState = {
+  email: '',
+  password: '',
+};
+
 const Login = () => {
-    const[state, setState] = useState(initialState)
-    console.log(state);
+  const [state, setState] = useState(initialState);
 
-    const { login, logout, isAuth } = useContext(MyAuthContext)
-    const handleinput = (e) => {
-        setState({...state,[e.target.name]:e.target.value})
-    }
+  const { login, isAuth } = useContext(MyAuthContext);
 
-    const handleSubmit=()=>{
-        fetch("http://localhost:8000/login",{ 
-            method: 'POST',
-            headers:{
-                'Content-Type' : 'application/json'
-            },
-            body: JSON.stringify(state)
-        })
-        
-        //.then(res => console.log(res));
-        .then((res) => res.json())
-        .then((res) => login(res.token));
-         //alert("logged in")
-     }
-    
-     if(isAuth){
-        return <Navigate to="/dashboard"/>
-     }
+  const handleInput = (e) => {
+    setState({ ...state, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = () => {
+    fetch('http://localhost:8000/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(state),
+    })
+      .then((res) => res.json())
+      .then((res) => login(res.token));
+  };
+
+  const containerStyle = {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: '100vh',
+  };
+
+  const formStyle = {
+    backgroundColor: '#ffffff',
+    padding: '20px',
+    borderRadius: '8px',
+    boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.2)',
+    width: '300px',
+    textAlign: 'center',
+  };
+
+  const headingStyle = {
+    fontSize: '24px',
+    marginBottom: '20px',
+  };
+
+  const inputStyle = {
+    width: '100%',
+    padding: '10px',
+    marginBottom: '15px',
+    border: '1px solid #ccc',
+    borderRadius: '5px',
+  };
+
+  const buttonStyle = {
+    width: '100%',
+    padding: '10px',
+    backgroundColor: '#007bff',
+    color: '#fff',
+    border: 'none',
+    borderRadius: '5px',
+    cursor: 'pointer',
+    transition: 'background-color 0.3s ease-in-out',
+  };
 
   return (
-    <div>
-      <h1>Login</h1>
-      <input name='email' placeholder='email' onChange={handleinput}></input>
-      <input name='password' placeholder='password' onChange={handleinput}></input>
-      <button onClick={handleSubmit}>Login</button>
+    <div style={containerStyle}>
+      <div style={formStyle}>
+        <h1 style={headingStyle}>Login</h1>
+        <input
+          name="email"
+          placeholder="Email"
+          onChange={handleInput}
+          style={inputStyle}
+        />
+        <input
+          name="password"
+          placeholder="Password"
+          onChange={handleInput}
+          style={inputStyle}
+          type="password"
+        />
+        <button onClick={handleSubmit} style={buttonStyle}>
+          Login
+        </button>
+      </div>
+      {isAuth && <Navigate to="/dashboard" />}
     </div>
-  )
-}
+  );
+};
 
-export default Login
+export default Login;
