@@ -23,6 +23,13 @@ app.get("/", (req,res)=> {
 app.post("/signup", async (req,res)=> {
 
 const{name, email, password}=req.body
+//check for email login multiple times 
+const user = await UserModel.findOne({ email });
+
+if(user) {
+    res.status(419).json({ msg: "already logged in" });
+}
+
 bcrypt.hash(password, 3, async function(err, hash) {
   const new_user= new UserModel({
     name,
@@ -50,30 +57,58 @@ bcrypt.hash(password, 3, async function(err, hash) {
 // console.log(payload)
 })
 
-app.post("/login", async (req,res)=> {
-    const{email, password} = req.body
-    const user = await UserModel.findOne({email})
+// app.post("/login", async (req,res)=> {
+//     const{email, password} = req.body
+//     const user = await UserModel.findOne({email})
     
-    if(!user) {
-        res.send({msg: "sign up first!"})
-    }else{
+//     if(!user) {
+//         res.send({msg: "sign up first!"})
+//     }else{
 
-      const hashed_password= user.password
+//       const hashed_password= user.password
       
 
-        bcrypt.compare(password, hashed_password, function(err, result) {
+//         bcrypt.compare(password, hashed_password, function(err, result) {
 
-            if(result){
-                var token = jwt.sign({ user_id: user._id }, 'yash');
+//             if(result){
+//                 var token = jwt.sign({ user_id: user._id }, 'yash');
 
-                res.send({msg: "logged in", token : token})
-            }else{
-                res.send("invalid password")
-            }
-            // result == true
-        });
+//                 res.send({msg: "logged in", token : token})
+//             }else{
+//                 res.send("invalid password")
+//             }
+//             // result == true
+//         });
+//     }
+// })
+
+app.post("/login", async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        const user = await UserModel.findOne({ email });
+        
+
+        if (!user) {
+            res.status(401).json({ msg: "Sign up first!" });
+        } else {
+            const hashedPassword = user.password;
+
+            bcrypt.compare(password, hashedPassword, (err, result) => {
+                if (result) {
+                    const token = jwt.sign({ user_id: user._id }, 'your_secret_key_here');
+                    res.status(200).json({ msg: "Logged in", token: token });
+                } else {
+                    res.status(401).json({ msg: "Invalid password" });
+                }
+            });
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ msg: "Internal Server Error" });
     }
-})
+});
+
+
 
 
 

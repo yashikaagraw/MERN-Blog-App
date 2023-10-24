@@ -1,5 +1,4 @@
-import React from 'react';
-import { useState } from 'react';
+import React, { useState } from 'react';
 
 const initialvalue = {
   name: '',
@@ -23,7 +22,14 @@ const Signup = () => {
 
     fetch('http://localhost:8000/signup', requestOptions)
       .then((response) => response.json())
-      .then((data) => console.log(data));
+      .then((data) => {
+        console.log(data);
+        // Reset the form after successful submission
+        setState(initialvalue);
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+      });
 
     alert('Posted successfully');
   };
@@ -53,18 +59,21 @@ const Signup = () => {
       <input
         name="name"
         placeholder="Name"
+        value={state.name}
         onChange={handleInput}
         style={inputStyle}
       />
       <input
         name="email"
         placeholder="Email"
+        value={state.email}
         onChange={handleInput}
         style={inputStyle}
       />
       <input
         name="password"
         placeholder="Password"
+        value={state.password}
         onChange={handleInput}
         style={inputStyle}
         type="password"

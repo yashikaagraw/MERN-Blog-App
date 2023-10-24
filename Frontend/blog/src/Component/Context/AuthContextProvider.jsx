@@ -4,20 +4,23 @@ export const MyAuthContext = createContext(); //box
 
 function AuthContextProvider({children}) {
  const[isAuth, setIsAuth] = useState(false)
-//  const[token, setToken] = useState("")
+const[token, setToken] = useState("")
 console.log(isAuth);
 
- const login = () => {
- setIsAuth(true);
+ const login = (token) => {
+ setToken(token);
+ setIsAuth(true)
  
  }
-// console.log(token);
+console.log(token);
  const logout = () => {
  setIsAuth(false);
  }
+
+ 
     return(
         // value is used for send info
-     <MyAuthContext.Provider value = {{isAuth, login, logout}}>{children}</MyAuthContext.Provider>
+     <MyAuthContext.Provider value = {{isAuth, login, logout, setIsAuth}}>{children}</MyAuthContext.Provider>
     )
 }
 

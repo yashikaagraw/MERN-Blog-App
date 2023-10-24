@@ -17,16 +17,25 @@ const Login = () => {
     setState({ ...state, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = () => {
-    fetch('http://localhost:8000/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(state),
-    })
-      .then((res) => res.json())
-      .then((res) => login(res.token));
+  const handleSubmit = async () => {
+    try {
+      const response = await fetch('http://localhost:8000/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(state),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        login(data.token);
+      } else {
+        console.error('Login failed.');
+      }
+    } catch (error) {
+      console.error('An error occurred:', error);
+    }
   };
 
   const containerStyle = {
