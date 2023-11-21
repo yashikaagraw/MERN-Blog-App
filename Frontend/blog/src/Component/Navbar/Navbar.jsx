@@ -18,6 +18,10 @@ const Navbar = () => {
         {
             title: "Signup",
             path: "/"
+        },
+        {
+          title: "Contact",
+          path: "/contact"
         }
     ]
     let navStyle={
