@@ -20,93 +20,102 @@ app.get("/", (req,res)=> {
     res.send("basic end point")
 })
 
-app.post("/signup", async (req,res)=> {
+// app.post("/signup", async (req,res)=> {
 
-const{name, email, password}=req.body
-//check for email login multiple times 
-const user = await UserModel.findOne({ email });
+// const{name, email, password}=req.body
+// //check for email login multiple times 
+// const user = await UserModel.findOne({ email });
 
-if(user) {
-    res.status(419).json({ msg: "already logged in" });
-}
+// if(user) {
+//     res.status(419).json({ msg: "already have a gmail account" });
+// }
 
-bcrypt.hash(password, 3, async function(err, hash) {
-  const new_user= new UserModel({
-    name,
-    email,
-    password : hash,
-  })
+// bcrypt.hash(password, 3, async function(err, hash) {
+//   const new_user= new UserModel({
+//     name,
+//     email,
+//     password : hash,
+//   })
   
-  try {
-    await new_user.save()
-    res.send({msg: "sign up successfully", new_user})
-  } catch (error) {
-    res.send("something went wrong")
-    console.log(error)
-  }
+//   try {
+//     await new_user.save()
+//     res.send({msg: "sign up successfully", new_user})
+//   } catch (error) {
+//     res.send("something went wrong")
+//     console.log(error)
+//   }
 
-    // Store hash in your password DB.
+//     // Store hash in your password DB.
+// });
+
+// })
+
+app.post("/signup", async (req, res) => {
+  const { name, email, password } = req.body;
+
+  try {
+    // Check if a user with the provided email already exists.
+    const user = await UserModel.findOne({ email });
+
+    if (user) {
+      return res.status(409).json({ msg: "Email already registered" });
+    }
+
+    // Hash the user's password.
+    bcrypt.hash(password, 10, async function (err, hash) {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({ msg: "Internal server error" });
+      }
+
+      // Create a new user with the hashed password.
+      const newUser = new UserModel({
+        name,
+        email,
+        password: hash,
+      });
+
+      // Save the new user to the database.
+      await newUser.save();
+
+      res.status(201).json({ msg: "Sign up successful", user: newUser });
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ msg: "Something went wrong" });
+  }
 });
 
 
 
-// const payload =  req.body
-// const new_user= new UserModel(payload)
-// await new_user.save()
-// res.send({msg : "sign up successfully", new_user})
-// console.log(payload)
-})
 
-// app.post("/login", async (req,res)=> {
-//     const{email, password} = req.body
-//     const user = await UserModel.findOne({email})
-    
-//     if(!user) {
-//         res.send({msg: "sign up first!"})
-//     }else{
 
-//       const hashed_password= user.password
-      
-
-//         bcrypt.compare(password, hashed_password, function(err, result) {
-
-//             if(result){
-//                 var token = jwt.sign({ user_id: user._id }, 'yash');
-
-//                 res.send({msg: "logged in", token : token})
-//             }else{
-//                 res.send("invalid password")
-//             }
-//             // result == true
-//         });
-//     }
-// })
-
-app.post("/login", async (req, res) => {
+// Define a route for user login
+app.post('/login', async (req, res) => {
     try {
         const { email, password } = req.body;
         const user = await UserModel.findOne({ email });
-        
 
         if (!user) {
-            res.status(401).json({ msg: "Sign up first!" });
-        } else {
-            const hashedPassword = user.password;
+            return res.status(401).json({ msg: 'User not found. Please sign up first.' });
+        }
 
-            bcrypt.compare(password, hashedPassword, (err, result) => {
-                if (result) {
-                    const token = jwt.sign({ user_id: user._id }, 'your_secret_key_here');
-                    res.status(200).json({ msg: "Logged in", token: token });
-                } else {
-                    res.status(401).json({ msg: "Invalid password" });
-                }
-            });
+        // Compare the provided password with the hashed password in the database
+        const passwordMatch = await bcrypt.compare(password, user.password);
+
+        if (passwordMatch) {
+            // Generate a JWT token
+            const token = jwt.sign({ user_id: user._id }, 'your_secret_key_here');
+            return res.status(200).json({ msg: 'Logged in', token: token });
+        } else {
+            return res.status(401).json({ msg: 'Invalid password' });
         }
     } catch (error) {
         console.error(error);
-        res.status(500).json({ msg: "Internal Server Error" });
+        return res.status(500).json({ msg: 'Internal Server Error' });
     }
 });
+
 
 
 

@@ -5,7 +5,7 @@ const Navbar = () => {
     let myLink = [
         {
             title: "Home",
-            path: "/"
+            path: "/home"
         },
         {
             title: "Dashboard",
@@ -17,7 +17,7 @@ const Navbar = () => {
         },
         {
             title: "Signup",
-            path: "/signup"
+            path: "/"
         }
     ]
     let navStyle={
@@ -36,6 +36,7 @@ const Navbar = () => {
       {
         myLink.map((e) => (<Link to={e.path} style={linkStyle}>{e.title}</Link>))
       }
+     
     </div>
   )
 }
