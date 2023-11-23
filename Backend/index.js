@@ -6,6 +6,7 @@ const cors = require("cors")
 
 const {connection} = require("./config/db")
 const{UserModel} = require("./model/User.model")
+const{ContactModel} = require("./model/Contact.model")
 
 
 const app= express()
@@ -20,35 +21,21 @@ app.get("/", (req,res)=> {
     res.send("basic end point")
 })
 
-// app.post("/signup", async (req,res)=> {
+app.get("/admincontact", async(req,res)=> {
+  const contactDetails = await ContactModel.find()
+  res.send(contactDetails)
+})
 
-// const{name, email, password}=req.body
-// //check for email login multiple times 
-// const user = await UserModel.findOne({ email });
+app.post("/contact", async(req, res)=> {
+const payload = req.body
+console.log(payload);
+const new_contact = new ContactModel(payload)
+await new_contact.save()
+res.send({msg: "send successfull", new_contact})
 
-// if(user) {
-//     res.status(419).json({ msg: "already have a gmail account" });
-// }
+})
 
-// bcrypt.hash(password, 3, async function(err, hash) {
-//   const new_user= new UserModel({
-//     name,
-//     email,
-//     password : hash,
-//   })
-  
-//   try {
-//     await new_user.save()
-//     res.send({msg: "sign up successfully", new_user})
-//   } catch (error) {
-//     res.send("something went wrong")
-//     console.log(error)
-//   }
 
-//     // Store hash in your password DB.
-// });
-
-// })
 
 app.post("/signup", async (req, res) => {
   const { name, email, password } = req.body;
@@ -66,6 +53,8 @@ app.post("/signup", async (req, res) => {
       if (err) {
         console.error(err);
         return res.status(500).json({ msg: "Internal server error" });
+        //200- successfull
+        
       }
 
       // Create a new user with the hashed password.

@@ -2,7 +2,7 @@
 
 const mongoose = require("mongoose")
 
-const connection = mongoose.connect("mongodb+srv://yashikaagraw:8126472202@cluster0.aewjx9l.mongodb.net/mernblog?retryWrites=true&w=majority")
+const connection = mongoose.connect("mongodb+srv://yashikaagraw:8126472202@cluster0.prfz8al.mongodb.net/mernlogin?retryWrites=true&w=majority")
 
 module.exports= {connection}
 
